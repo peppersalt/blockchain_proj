@@ -1,0 +1,300 @@
+{% extends "home.html" %}
+{% block content %}
+<style>
+    .button.full-width {
+    width: 95.5%; /* Занимает всю ширину контейнера */
+    opacity: 0.5; /* Полупрозрачность */
+    transition: opacity 0.3s ease; /* Анимация для плавного эффекта */
+    font-size: 24px; /* Увеличенный шрифт для выразительности */
+    font-weight: bold;
+    border: none;
+    color: var(--bg1); /* Цвет текста, чтобы соответствовать стилю */
+}
+
+.button.full-width:hover {
+    opacity: 1; /* Полная непрозрачность при наведении */
+}
+
+     /* Стили для уведомлений */
+     .notification {
+        position: fixed;
+        bottom: 6%;
+        right: 4%;
+        background-color: #ff3838;  /* Красный для ошибок */
+        color: rgb(96, 96, 96);
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.5s ease-in-out;
+    }
+
+    .notification.is-active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        background-color: #7cffaa;  
+    }
+
+    .notification.warning {
+        background-color: #fff382;  
+    }
+
+    .notification.error {
+        background-color: #ff6a88;  
+    }
+    .modal {
+        display: none;  /* Скрыто по умолчанию */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .modal.is-active {
+        display: flex;
+    }
+
+    .modal .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5em;
+        color: #333;
+        cursor: pointer;
+    }
+
+    /* Остальные стили для формы и страницы */
+    .gets-body-right {
+        background-color: var(--bg1);
+        border-radius: 0px 0px 9px 0px;
+        padding: 20px;
+    }
+    
+    .gets-redirect-name {
+        font-weight: 900;
+        color: var(--dark1);
+        text-decoration: none;
+    }
+
+    .gets-redirect-2 b {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px;
+        background: linear-gradient(to right, var(--accent1), var(--accent2));
+        color: var(--bg1);
+        font-weight: 800;
+    }
+
+    /* Стиль кнопки для модального окна */
+    .button.is-primary {
+        background: linear-gradient(to right, var(--accent2), var(--accent1));
+    }
+
+    .wallet-info {
+        background-color: var(--bg2);
+        padding: 20px;
+        font-family: var(--inter);
+        color: var(--dark1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font: 400 15px / 20px var(--inter);
+    }
+    
+    .wallet_mame{
+      font: 800 0px / 10px var(--inter);
+    }
+    .gets-redirect-name {
+        font-weight: 900;
+        color: var(--dark1);
+        text-decoration: none;
+    }
+    .gets-redirect-2 b {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px;
+        background: linear-gradient(to right, var(--accent1), var(--accent2));
+        color: var(--bg1);
+        font-weight: 800;
+    }
+
+    /* Selected Wallet Details Styling */
+    .wallet-info {
+        background-color: var(--bg2);
+        padding: 20px;
+        font-family: var(--inter);
+        color: var(--dark1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font: 400 15px / 20px var(--inter);
+    }
+    
+
+      /* Empty state message */
+      .gets-stats-title {
+          margin-top: 20px;
+          background: linear-gradient(to right, var(--accent1), var(--accent2));
+          padding: 0px;
+          font-size: 18px;
+          color: var(--bg1);
+          text-align: center;
+      }
+      /* Custom styles to override Bulma as needed */
+    .wallet-info {
+        background-color: var(--bg2);
+        padding: 20px;
+        color: var(--dark1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+    .wallet-name {
+        font-weight: 800;
+        color: var(--dark1);
+    }
+    .is-primary{
+      background: linear-gradient(to right, var(--accent2), var(--accent1));
+    }
+    .gets-body-2 { display: grid; grid-template-columns: 50px auto 42%; flex-grow: 2; font: 13px / 22px var(--inter); color: var(--dark2); }
+</style>
+
+<div class="gets-body-left"></div>
+<div class="gets-body-mid">
+    <div class="gets-body-mid-2">
+        {% for wallet in wallets %}
+        <div class="gets-redirect">
+            <div class="gets-redirect-2">
+                <a class="gets-redirect-name" href="?wallet_id={{ wallet.id }}">{{ wallet.name }}</a>
+                <b> Баланс: {{ wallet.balance }} коинов</b>
+            </div>
+        </div>
+        {% endfor %}
+        <button class="button is-primary full-width" id="openModalBtn"> + </button>
+
+    </div>
+    
+    <!-- Модальное окно -->
+    <div id="walletModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModalBtn">&times;</span>
+            <h2 class="title is-5">Добавить кошелек</h2>
+            <form action="{% url 'add_wallet' %}" method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label" for="wallet_username">Логин кошелька:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="wallet_username" name="wallet_username" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="wallet_password">Пароль кошелька:</label>
+                    <div class="control">
+                        <input class="input" type="password" id="wallet_password" name="wallet_password" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="gets-body-right">
+    {% if selected_wallet %}
+    <h2 class="title is-4">{{ selected_wallet.name }}</h2>
+    <div class="content">
+        <p><strong>Баланс:</strong> {{ selected_wallet.balance|default:"Неизвестно" }} коинов</p>
+        <p><strong>Хэш кошелька:</strong> {{ selected_wallet.wallet_hash|default:"Неизвестно" }}</p>
+        <button class="button is-primary" type="submit">Просмотреть операции</button>
+    </div>
+    <!-- Форма для отправки монет -->
+    <form action="{% url 'send_coins' %}" method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label class="label" for="to_wallet_hash">Получатель (Хэш кошелька):</label>
+            <div class="control">
+                <input class="input" type="text" id="to_wallet_hash" name="to_wallet_hash" required>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label" for="coin_amount">Количество коинов:</label>
+            <div class="control">
+                <input class="input" type="number" id="coin_amount" name="coin_amount" required min="1">
+            </div>
+        </div>
+        <input type="hidden" name="from_wallet_hash" value="{{ selected_wallet.wallet_hash }}">
+        <input type="hidden" name="wallet_id" value="{{ selected_wallet.id }}">
+        <div class="control">
+            <button class="button is-primary" type="submit">Отправить монеты</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="notification is-warning">Выберите кошелек для отображения информации.</p>
+    {% endif %}
+</div>
+
+
+<!-- Скрипт для открытия/закрытия модального окна -->
+<script>
+    // Открыть модальное окно
+    document.getElementById("openModalBtn").onclick = function() {
+        document.getElementById("walletModal").classList.add("is-active");
+    }
+
+    // Закрыть модальное окно
+    document.getElementById("closeModalBtn").onclick = function() {
+        document.getElementById("walletModal").classList.remove("is-active");
+    }
+
+    // Закрыть окно при клике вне окна
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("walletModal")) {
+            document.getElementById("walletModal").classList.remove("is-active");
+        }
+    }
+</script>
+<script>
+    // Функция для отображения уведомлений
+    function showNotification(message, type) {
+        var notification = document.createElement('div');
+        notification.classList.add('notification', type, 'is-active');
+        notification.innerHTML = message;
+
+        // Добавляем уведомление на страницу
+        document.body.appendChild(notification);
+
+        // Через 3 секунды скрываем уведомление
+        setTimeout(function() {
+            notification.classList.remove('is-active');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);  // Задержка для анимации исчезновения
+        }, 3000);  // Уведомление исчезает через 3 секунды
+    }
+
+    // Получаем все сообщения из Django и показываем их
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                showNotification("{{ message }}", "{{ message.tags }}");
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+
+
+{% endblock %}

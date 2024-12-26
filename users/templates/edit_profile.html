@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="{% static 'path/to/bulma.min.css' %}">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Edit Profile</h1>
+            <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+                {% csrf_token %}
+                
+                <div class="field">
+                    <label class="label">Nickname</label>
+                    <div class="control">
+                        {{ form.nickname }}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Email</label>
+                    <div class="control">
+                        {{ form.email }}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Bio</label>
+                    <div class="control">
+                        {{ form.bio }}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Profile Image</label>
+                    <div class="file has-name is-fullwidth">
+                        <label class="file-label">
+                            {{ form.profile_image }}
+                            <span class="file-name">Choose a file...</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-link">Save Changes</button>
+                    </div>
+                    <div class="control">
+                        <a href="{% url 'profile' %}" class="button is-light">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

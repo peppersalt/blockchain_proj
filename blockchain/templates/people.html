@@ -1,0 +1,290 @@
+{% extends "home.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пользователей</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .title, .subtitle {
+            color: #2c3e50;
+        }
+
+        /* Button Styles */
+        .json_button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #6e7dff, #7d88f7);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .json_button:hover {
+            background: linear-gradient(135deg, #7d88f7, #6e7dff);
+            transform: scale(1.05);
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .pagination-list {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+        }
+
+        .pagination-link {
+            padding: 10px 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1rem;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination-link:hover {
+            background-color: #6e7dff;
+            color: white;
+        }
+
+        .pagination-link.is-current {
+            background-color: #7d88f7;
+            color: white;
+        }
+
+        .pagination a {
+            display: inline-block;
+        }
+
+        /* Section Styling */
+        .section {
+            background-color: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+
+        .buttons a {
+            margin: 0 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .pagination-list {
+                flex-direction: column;
+            }
+
+            .json_button {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .buttons a {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+        .wallets-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-around;
+    }
+
+    .wallet-item {
+        width: 200px;  /* Ширина для каждого кошелька */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .transaction-chart {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 10px;
+    }
+
+    .wallet-info {
+        font-size: 14px;
+    }
+
+    .wallet-info h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+    <div class="gets-body-left"></div>
+    <div class="gets-body-mid">
+        <div class="gets-body-mid-2">
+            <div class="container mt-5">
+                <h2>Кошельки пользователя {{ request.user.username }}</h2>
+                <h2 class="subtitle is-4">Статистика транзакций</h2>
+                <div class="wallets-container">
+                    {% for wallet_info in wallets_info %}
+                        <div class="wallet-info">
+                            <h3>Кошелек: {{ wallet_info.username }}</h3>
+                            
+                            <!-- Уникальный ID для каждого графика -->
+                            <div>
+                                <canvas id="transactionChart{{ forloop.counter }}" width="200" height="200"></canvas>
+                            </div>
+                
+                            <p><strong>Баланс:</strong> {{ wallet_info.balance }} монет</p>
+                            <p><strong>Отправлено сообщений:</strong> {{ wallet_info.sent_messages }}</p>
+                            <p><strong>Получено сообщений:</strong> {{ wallet_info.received_messages }}</p>
+                            <p><strong>Отправлено монет:</strong> {{ wallet_info.sent_coins }}</p>
+                            <p><strong>Получено монет:</strong> {{ wallet_info.received_coins }}</p>
+                        </div>
+                        <hr>
+                    {% empty %}
+                        <p>У вас нет привязанных кошельков.</p>
+                    {% endfor %}
+                </div>  
+                
+                <h1 class="title is-2">Пользователи</h1>
+
+                <!-- Статистика блокчейна -->
+                <section class="section">
+                    <h2 class="subtitle is-4">Статистика блокчейна</h2>
+                    <p>Количество пользователей в блокчейне: <strong>{{ blockchain_user_count }}</strong></p>
+                    <p>Количество пользователей сайта Blockchain: <strong>{{ db_users|length }}</strong></p>
+                    <p>Общее количество монет: <strong>{{ total_coins }}</strong></p>
+                </section>
+
+                <!-- Топ пользователей по монетам -->
+                <section class="section">
+                    <h2 class="subtitle is-4">Топ пользователей по монетам</h2>
+                    <ul>
+                        {% for user in top_users %}
+                            <li class="box">ID: {{ user.id }} <span>Монеты: {{ user.coins }}</span> <span>Hash: {{ user.hach }}</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <!-- Фильтры -->
+                <div class="buttons is-centered">
+                    <span>Сортировать:</span>
+                    <a href="?sort=coins_asc&blockchain_page=1" class="button is-link is-light">По количеству монет (возрастание)</a>
+                    <a href="?sort=coins_desc&blockchain_page=1" class="button is-link is-light">По количеству монет (убывание)</a>
+                    <a href="?sort=time_asc&blockchain_page=1" class="button is-link is-light">По времени регистрации (старые)</a>
+                    <a href="?sort=time_desc&blockchain_page=1" class="button is-link is-light">По времени регистрации (новые)</a>
+                </div>
+
+                <!-- Все пользователи из блокчейна -->
+                <section class="section">
+                    <h2 class="subtitle is-4">Все пользователи из блокчейна</h2>
+                    <ul>
+                        {% for user in blockchain_users %}
+                            <li class="box">ID: {{ user.id }} <span>Hash: {{ user.hach }}</span> <span>Монеты: {{ user.coins }}</span></li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <!-- Пагинация -->
+                <div class="pagination">
+                    <ul class="pagination-list">
+                        {% if blockchain_users.has_previous %}
+                            <li><a href="?blockchain_page=1" class="pagination-link">&laquo; Первая</a></li>
+                            <li><a href="?blockchain_page={{ blockchain_users.previous_page_number }}" class="pagination-link">Предыдущая</a></li>
+                        {% endif %}
+
+                        <li><span class="pagination-link is-current">Страница {{ blockchain_users.number }} из {{ blockchain_users.paginator.num_pages }}</span></li>
+
+                        {% if blockchain_users.has_next %}
+                            <li><a href="?blockchain_page={{ blockchain_users.next_page_number }}" class="pagination-link">Следующая</a></li>
+                            <li><a href="?blockchain_page={{ blockchain_users.paginator.num_pages }}" class="pagination-link">Последняя &raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Кнопка для загрузки JSON -->
+                <div class="has-text-centered">
+                    <button class="json_button" onclick="location.href='{% url 'get_full_json' %}'">Получить полный JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    {% for wallet_info in wallets_info %}
+    var ctx{{ forloop.counter }} = document.getElementById('transactionChart{{ forloop.counter }}').getContext('2d');
+    var transactionChart{{ forloop.counter }} = new Chart(ctx{{ forloop.counter }}, {
+        type: 'pie',  // Тип графика - круговой
+        data: {
+            labels: ['Отправлено сообщений', 'Получено сообщений', 'Отправлено операций', 'Получено операций'],
+            datasets: [{
+                data: [
+                    {{ wallet_info.sent_messages }},
+                    {{ wallet_info.received_messages }},
+                    {{ wallet_info.sent_operations }},
+                    {{ wallet_info.received_operations }}
+                ],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                hoverBackgroundColor: ['#FF4C61', '#2D90D7', '#FFD700', '#3D9B8F']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' операций';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endfor %}
+</script>
+
+
+</html>
+{% endblock %}

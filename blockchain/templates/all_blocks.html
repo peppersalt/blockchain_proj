@@ -1,0 +1,180 @@
+{% extends "home.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Последние блоки</title>
+    <style>
+
+        h1 {
+            text-align: left;
+            color: #000000;
+            font-size: 2.5rem;
+            margin-top: 20px;
+            font: 22px / 22px var(--inter);
+            color: var(--dark2);
+        }
+
+        table {
+            
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font: 13px / 22px var(--inter);
+            color: var(--dark2);
+            
+        }
+        h, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        th {
+            
+            color: rgb(41, 41, 41);
+            text-transform: uppercase;
+            border-radius: 0;
+        }
+        td {
+            word-wrap: break-word;
+        }
+        
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: #5E35B1;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 2px solid #5E35B1;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .pagination a:hover {
+            background: linear-gradient(to right, var(--accent1), var(--accent2));
+            color: #1c1c1c;
+        }
+        .pagination .current {
+            color: linear-gradient(to right, var(#ffffff)), var(#5E35B1);
+            border: none;
+        }
+        .json_button {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, var(--accent1), var(--accent2));
+            color: #242424;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .json_button:hover {
+            background: linear-gradient(to right, var(--accent2), var(--accent2));
+            transform: scale(1.05);
+        }
+        table thead {
+            background: linear-gradient(to right, var(--accent1), var(--accent2));
+            color: var(--bg1);
+        }
+
+        table th, table td {
+            padding: 15px 10px;
+            border: 1px solid #282828;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="gets-body-left"></div>
+    <div class="gets-body-mid"><div class="gets-body-mid-2">
+    
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Предыдущий хэш</th>
+                <th>Текущий хэш</th>
+                <th>Хэш данных</th>
+                <th>Количество монет</th>
+                <th>Сообщение</th>
+                <th>Получатель хэша</th>
+                <th>Отправитель хэша</th>
+                <th>Тип задачи</th>
+                <th>Количество валидаторов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for block in latest_blocks %}
+                {% for data in block.data_json %}
+                    <tr>
+                        <td>{{ block.id }}</td>
+                        <td>{{ block.prev_hash }}</td>
+                        <td>{{ block.current_hash }}</td>
+                        <td>{{ data.hash }}</td>
+
+                        {% if data.data_json.type_task != 'custom' %}
+                            <td>{{ data.data_json.count_coins }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+
+                        {% if data.data_json.type_task != 'send_coins' %}
+                            <td>{{ data.data_json.message }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+
+                        <td>{{ data.data_json.to_hach }}</td>
+                        <td>{{ data.data_json.from_hach }}</td>
+                        <td>{{ data.data_json.type_task }}</td>
+                        <td>{{ block.valid_count }}</td>
+                    </tr>
+                {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="10">Нет блоков для отображения.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if latest_blocks.has_previous %}
+                <a href="?page=1">&laquo; Первая</a>
+                <a href="?page={{ latest_blocks.previous_page_number }}">Предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ latest_blocks.number }} из {{ latest_blocks.paginator.num_pages }}
+            </span>
+
+            {% if latest_blocks.has_next %}
+                <a href="?page={{ latest_blocks.next_page_number }}">Следующая</a>
+                <a href="?page={{ latest_blocks.paginator.num_pages }}">Последняя &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- Button for JSON download -->
+    <button class="json_button" onclick="location.href='{% url 'get_full_json' %}'">Получить полный JSON</button>
+    </div></div>
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "home.html" %}
+{% block content %}
+<!-- tasks.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Script Control</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #consoleOutput {
+            max-height: 650px; /* Ограничение высоты элемента */
+            overflow-y: scroll; /* Добавление вертикальной полосы прокрутки */
+            border: 1px solid #ccc; /* Добавление рамки для удобства */
+            padding: 10px; /* Отступы внутри элемента */
+            background-color: #ffffff; /* Цвет фона для консоли */
+            color: rgb(53, 53, 56);
+        }
+    </style>
+</head>
+<body>
+    <h1>Blockchain Script Control</h1>
+    <button id="startButton">Start Script</button>
+    <button id="stopButton">Stop Script</button>
+    
+    <h2>Console Output:</h2>
+    <pre id="consoleOutput" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+
+    <script>
+        $(document).ready(function() {
+            let previousOutput = ''; // Храним предыдущее состояние консоли
+
+            // Обработчик нажатия на кнопку Start Script
+            $('#startButton').click(function() {
+                $.get('/start/', function(response) {
+                    alert(response.status);
+                });
+            });
+
+            // Обработчик нажатия на кнопку Stop Script
+            $('#stopButton').click(function() {
+                $.get('/stop/', function(response) {
+                    alert(response.status);
+                });
+            });
+
+            // Функция для получения и отображения консольного вывода
+            function updateConsoleOutput() {
+                $.get('/get_console_output/', function(response) {
+                    let newContent = response.console_output;
+
+                    // Проверяем, изменился ли контент
+                    if (newContent !== previousOutput) {
+                        // Обновляем текст консоли
+                        $('#consoleOutput').text(newContent);
+
+                        // Прокручиваем к последней строке
+                        let consoleOutput = $('#consoleOutput')[0];
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+                        // Обновляем предыдущее состояние
+                        previousOutput = newContent;
+                    }
+                });
+            }
+
+            // Обновляем консоль каждую секунду
+            setInterval(updateConsoleOutput, 1000);  // Запрос каждые 1 секунду
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

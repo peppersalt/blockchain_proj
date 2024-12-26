@@ -1,0 +1,617 @@
+{% extends "home.html" %}
+{% block content %}
+<style>
+  /* Общие стили */
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+    height: 1450px;
+  }
+
+  h2 {
+    font-size: 32px;
+    padding-bottom: 1%;
+    color: #333;
+    font-weight: bold;
+  }
+
+  .encrypted {
+    font-weight: bold;
+    color: #0056b3;
+  }
+
+  .messagess {
+    padding: 2%;
+    max-width: 1700px;
+    height: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .highlight {
+    background-color: yellow;
+    font-weight: bold;
+  }
+
+  /* Стили вкладок */
+  .tabs {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tab-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 2px solid #ddd;
+  }
+
+  .tab-list li {
+    margin-right: 20px;
+  }
+
+  .tab-link {
+    text-decoration: none;
+    color: #555;
+    font-weight: bold;
+    padding: 10px;
+    display: inline-block;
+    transition: color 0.3s;
+  }
+
+  .tab-link:hover {
+    color: #007bff;
+  }
+
+  .tab-link.active {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+  }
+
+  /* Стили для содержимого вкладок */
+  .tab-content {
+    margin-top: 20px;
+  }
+
+  .tab-pane {
+    display: none;
+    margin-top: 20px;
+  }
+
+  .tab-link.active+.tab-pane {
+    display: block;
+  }
+
+  /* Стиль сообщений */
+  .message-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 20px;
+  }
+
+  .message-item {
+    background-color: #f9f9f9;
+    margin: 10px 0;
+    padding: 15px;
+    height: 120px;
+    margin-right: 1%;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .message-item strong {
+    font-weight: bold;
+  }
+
+  .message-item p {
+    margin: 5px 0;
+  }
+
+  .message-item .task-text {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .message-item .message-count {
+    color: #007bff;
+  }
+
+  /* Без сообщений */
+  .no-messages {
+    font-style: italic;
+    color: #999;
+  }
+
+  /* Для кнопок */
+  .tab-content button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .tab-content button:hover {
+    background-color: #0056b3;
+  }
+
+  .message-block {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+  }
+
+  #popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 2px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  #popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+</style>
+<div class="gets-body-left"></div>
+<div class="gets-body-mid"><div class="gets-body-mid-2">
+<div class="messagess">
+  <h2>Сообщения</h2>
+
+  {% if wallet_tabs %}
+  <div class="tabs">
+    <ul class="tab-list">
+      {% for wallet_id, wallet in wallet_tabs.items %}
+      <li><a href="#wallet{{ wallet_id }}" class="tab-link">Кошелек {{ wallet_id }} | {{ wallet.wallet_hash|slice:":10"}}...</a></li>
+      {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+      {% for wallet_num, wallet in wallet_tabs.items %}
+      <div id="wallet{{ wallet_num }}" class="tab-pane">
+        <h3>Входящие сообщения</h3>
+        {% if wallet.incoming_messages %}
+        <ul class="message-list">
+          {% for message in wallet.incoming_messages %}
+          <li class="message-item" onclick="showPopup({{ message|safe }})">
+            <strong>От кого:</strong> {{ message.from_hach }}<br>
+            {% if message.count_coins > 0 %}
+            <strong>Количество монет:</strong> <span class="message-count">{{ message.count_coins }}</span><br>
+            {% endif %}
+            <strong>Тип задачи:</strong> {{ message.type_task }}<br>
+            <strong>Текст задачи:</strong> <span class="task-text">
+              {% if message.message %}
+              {{ message.message|default:"Нет текста" }}
+              {% elif message.encrypted_object %}
+              <div class="encrypted">СООБЩЕНИЕ ЗАШИФРОВАНО</div>
+              {% elif message.random_key or message.secret_text %}
+              <div class="encrypted">СООБЩЕНИЕ ЗАШИФРОВАНО</div>
+              {% else %}
+              {{ message.text|default:"Нет текста" }}
+              {% endif %}
+            </span><br>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-messages">Нет входящих сообщений.</p>
+        {% endif %}
+
+        <h3>Исходящие сообщения</h3>
+        {% if wallet.outgoing_messages %}
+        <ul class="message-list">
+          {% for message in wallet.outgoing_messages %}
+          <li class="message-item" onclick="showPopup({{ message|safe }})">
+            <strong>Кому:</strong> {{ message.to_hach }}<br>
+            <strong>Количество монет:</strong> <span class="message-count">{{ message.count_coins }}</span><br>
+            <strong>Тип задачи:</strong> {{ message.type_task }}<br>
+            <strong>Текст задачи:</strong> <span class="task-text">
+              {% if message.message %}
+              {{ message.message|default:"Нет текста" }}
+              {% elif message.encrypted_object %}
+              <div class="encrypted">СООБЩЕНИЕ ЗАШИФРОВАНО</div>
+              {% elif message.random_key or message.secret_text %}
+              <div class="encrypted">СООБЩЕНИЕ ЗАШИФРОВАНО</div>
+              {% else %}
+              {{ message.text|default:"Нет текста" }}
+              {% endif %}
+            </span><br>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-messages">Нет исходящих сообщений.</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="message-form">
+    <h3>Отправить сообщение</h3>
+    <form id="sendMessageForm" method="POST" action="{% url 'send_message_view' %}">
+      {% csrf_token %}
+      <div>
+        <label for="wallet_id">Выберите кошелек:</label>
+        <select name="wallet_id" id="wallet_id">
+          {% for wallet_id, wallet in wallet_tabs.items %}
+          <option value="{{ wallet_id }}">Кошелек {{ wallet_id }} | {{ wallet.wallet_hash|slice:":10" }}...</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="to_wallet_hash">Получатель (Hash):</label>
+        <input type="text" id="to_wallet_hash" name="to_wallet_hash" placeholder="Введите хэш получателя" required>
+      </div>
+      <div>
+        <label for="message">Сообщение:</label>
+        <textarea id="message" name="message" placeholder="Введите сообщение" required></textarea>
+      </div>
+      <div>
+        <div style="display: flex; align-items: baseline; justify-content: start;">
+
+          <input type="radio" id="encryption_toggle_off" name="encryption_toggle" value="off" checked>
+          <label for="encryption_toggle_off">Отправить без шифрования</label>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: start;">
+          <input type="radio" id="encryption_toggle_on" name="encryption_toggle" value="on">
+          <label for="encryption_toggle_on">Зашифровать сообщение</label>
+        </div>
+      </div>
+      <div id="encryption_key_container" style="display: none;">
+        <input type="text" id="encryption_key" name="encryption_key" placeholder="Введите ключ для шифрования">
+      </div>
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+  <div id="popup-overlay" class="modal-overlay"></div>
+
+
+  <!-- Модальное окно -->
+  <div id="popup" class="popup-overlay" style="display:none;">
+    <div class="popup-content">
+      <button class="close-popup" onclick="closePopup()">×</button>
+      <pre id="popup-data"></pre>
+      <div id="decrypt-section" style="display:none;">
+        <label for="secret-key">Введите секретный ключ:</label>
+        <input type="text" id="secret-key" placeholder="Введите ключ">
+        <button onclick="decryptMessage()">Расшифровать</button>
+        <pre id="decrypted-data"></pre>
+      </div>
+    </div>
+  </div>
+
+
+  {% else %}
+  <p>Нет сообщений для отображения.</p>
+  {% endif %}
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Полупрозрачный черный */
+    z-index: 1000;
+    /* Поверх всех элементов */
+    display: none;
+    /* Скрыт по умолчанию */
+  }
+
+  .modal-overlay.active {
+    display: block;
+  }
+
+
+
+  .popup-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff5e57;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .close-popup:hover {
+    background: #ff2e2e;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Полупрозрачный черный */
+    z-index: 999;
+    /* Поверх всех элементов, кроме модального окна */
+    display: none;
+    /* Скрыт по умолчанию */
+  }
+
+  <style>body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+
+
+  .message-form h3 {
+    margin-bottom: 20px;
+    font-size: 3vh;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+  }
+
+  .message-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+  }
+
+  .message-form input[type="text"],
+  .message-form select,
+  .message-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .message-form textarea {
+    resize: vertical;
+    height: 100px;
+  }
+
+  .message-form input[type="radio"] {
+    margin-right: 10px;
+  }
+
+  .message-form .radio-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .message-form .radio-group label {
+    margin-right: 15px;
+    font-weight: normal;
+  }
+
+  .message-form #encryption_key_container {
+    display: none;
+    margin-top: -10px;
+  }
+
+  .message-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .message-form button:hover {
+    background-color: #0056b3;
+  }
+
+  .message-form button:active {
+    background-color: #003f7f;
+  }
+</style>
+
+</style>
+<script>
+  document.getElementById('encryptButton').addEventListener('click', function () {
+    const message = document.getElementById('message').value;
+    const encryptionKey = document.getElementById('encryption_key').value;
+
+    if (!encryptionKey || !message) {
+      alert('Пожалуйста, заполните поле сообщения и ключ шифрования.');
+      return;
+    }
+    const encryptionToggleOn = document.getElementById('encryption_toggle_on');
+    const encryptionToggleOff = document.getElementById('encryption_toggle_off');
+    console.log(encryptionToggleOn)
+    console.log(encryptionToggleFalse)
+    fetch('/encrypt_message/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+      },
+      body: JSON.stringify({
+        encryption_toggle: encryptionToggleOn.checked ? 'on' : 'off',
+        private_key: encryptionToggleOn.checked ? document.getElementById('encryption_key').value : null,
+        text: document.getElementById('message').value
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('message').value = data.encrypted_message;
+          alert('Сообщение успешно зашифровано!');
+        } else {
+          alert('Ошибка шифрования: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при шифровании.');
+      });
+  });
+</script>
+<script>
+  const encryptionToggleOn = document.getElementById('encryption_toggle_on');
+  const encryptionToggleOff = document.getElementById('encryption_toggle_off');
+  const encryptionKeyContainer = document.getElementById('encryption_key_container');
+
+  encryptionToggleOn.addEventListener('change', () => {
+    if (encryptionToggleOn.checked) {
+      encryptionKeyContainer.style.display = 'block';
+    }
+  });
+
+  encryptionToggleOff.addEventListener('change', () => {
+    if (encryptionToggleOff.checked) {
+      encryptionKeyContainer.style.display = 'none';
+    }
+  });
+</script>
+
+<script>
+  // Показывать модальное окно
+
+  function showPopup(data) {
+    const popup = document.getElementById('popup');
+    const popupOverlay = document.getElementById('popup-overlay');
+    const popupData = document.getElementById('popup-data');
+    const decryptSection = document.getElementById('decrypt-section');
+    const decryptedData = document.getElementById('decrypted-data');
+
+    // Сброс полей
+    document.getElementById('secret-key').value = '';
+    decryptedData.textContent = '';
+
+    popupData.textContent = JSON.stringify(data, null, 2); // Отображение данных в формате JSON
+    popup.style.display = 'flex';
+    popupOverlay.style.display = 'block'; // Показываем оверлей
+
+    // Показываем секцию расшифровки, если сообщение зашифровано
+    if (data.encrypted_object) {
+      decryptSection.style.display = 'block';
+    } else {
+      decryptSection.style.display = 'none';
+    }
+  }
+
+  // Дешифровка сообщения
+  function decryptMessage() {
+    const secretKey = document.getElementById('secret-key').value;
+    const encryptedData = JSON.parse(document.getElementById('popup-data').textContent);
+
+    if (!secretKey) {
+      alert('Пожалуйста, введите секретный ключ.');
+      return;
+    }
+
+    fetch('/decrypt/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
+      },
+      body: JSON.stringify({
+        private_key: secretKey,
+        encrypted_object: encryptedData.encrypted_object,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          document.getElementById('decrypted-data').textContent = JSON.stringify(data.result, null, 2);
+        } else {
+          alert('Ошибка расшифровки: ' + data.error);
+        }
+      })
+      .catch((error) => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при расшифровке.');
+      });
+  }
+
+  // Получение CSRF-токена
+  function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+  }
+
+
+
+  function closePopup() {
+    const popup = document.getElementById('popup');
+    const popupOverlay = document.getElementById('popup-overlay');
+
+    popup.style.display = 'none';
+    popupOverlay.style.display = 'none'; // Скрываем оверлей
+  }
+
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabLinks.forEach((link, index) => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        tabLinks.forEach(link => link.classList.remove('active'));
+        tabPanes.forEach(pane => pane.style.display = 'none');
+        link.classList.add('active');
+        tabPanes[index].style.display = 'block';
+      });
+    });
+
+    // По умолчанию выбираем первую вкладку
+    if (tabLinks.length > 0) {
+      tabLinks[0].classList.add('active');
+      tabPanes[0].style.display = 'block';
+    }
+  });
+</script>
+
+{% endblock %}

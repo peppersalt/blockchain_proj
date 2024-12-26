@@ -1,0 +1,260 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Главная</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  
+  <!-- Добавляем кастомные стили и анимации -->
+  <style>
+   body {
+  
+  --accent1:#B5D0D1;
+  --accent2:#B3AAD5;
+  
+  --bg1: #eee;
+  --bg2: #e8e8e8;
+  --bg3: #e5e5e5;
+  
+  --border: #d5d5d5;
+  
+  --dark1: #333;
+  --dark2: #3b3b3b;
+  
+  --inter: Inter, sans-serif;
+  
+  --banner: url("{% static 'images/banner.png' %}");
+  --background: url("{% static 'images/back.png' %}");
+  --transition:.5s;
+  
+  background-image:
+    linear-gradient(to bottom,transparent,var(--bg3) 90%),
+    linear-gradient(to right,var(--accent1),var(--accent2));
+  background-size:100% 200%;
+  background-attachment:fixed;
+  background-position:bottom center;
+  margin:0px;
+
+  height: 100vh;
+}
+
+.gets-top-img { position:absolute;mask-image:var(--banner);mask-size:auto;mask-repeat: no-repeat;mask-position:center;width:1090px;height:550px;top:-150px;left:110px;right:40px;width:calc(100% - 150px); }
+.gets-top-img::before { display:block;content:'';height:100%;width:100%;background-color:var(--bg3); }
+.gets-redirect {
+    margin-top: 20px;
+    margin-right: 40px;
+    margin-bottom: 20px;
+    /* margin-left:  40px; */
+}
+
+.gets-top { padding:40px 40px 0px 35px;color:var(--dark1);position:relative;z-index:10; }
+.gets-top-links { position:absolute;top:20px;right:40px;display:flex;gap:15px;color:var(--dark1); }
+.gets-top-links i { display:block;font-size:23px;cursor:pointer; }
+.gets-top-links div { position:absolute;right:5px;bottom:-17px;display:none;font:800 10px / 10px var(--inter);text-transform:uppercase;letter-spacing:2px;padding:10px 9px 10px 10px;background-color:var(--dark1);color:var(--bg2);border-radius:5px; }
+.gets-top-links i:hover + div { display:block; }
+.gets-top-user {z-index: -999; position:absolute;bottom:30px;right:45px;display:flex;gap:18px;font:15px / 20px var(--inter);text-align:right;align-items:flex-end; }
+.gets-top-user b { font:800 22px / 20px var(--inter);display:block;letter-spacing:-.85px; }
+.gets-top-user img {z-index: -999; border-radius:25px;height:45px;width: 35px;filter:contrast(75%) grayscale(0%); }
+.gets-top-name { font:900 125px / 110px var(--inter);letter-spacing:-11px;pointer-events:none; }
+.gets-top-name div { font:900 10px var(--inter);text-transform:uppercase;letter-spacing:10px;padding:15px 10px 15px 20px;background-color:var(--dark1);max-width:fit-content;color:var(--bg2);margin-left:5px;border-radius:10px;text-shadow:none; }
+
+.gets-body { border:solid 1px var(--border);background-color:var(--bg1);margin:-10px 40px 0px 40px;height:calc(100vh - 172px);border-radius:10px;display:flex;flex-direction:column;position:relative;z-index:1; }
+.gets-menu { transition: 0.5s; padding:15px 15px 15px 50px;background-color:var(--dark2);margin:-1px -1px 0px -1px;border-radius:10px 10px 0px 0px;text-transform:uppercase;display:flex;gap:5px;position:relative;z-index:2; }
+.gets-menu a { transition: 0.5s;display:block;font:800 10px / 10px var(--inter);letter-spacing:2px;text-decoration:none;color:var(--bg2);background-attachment:fixed;background-position:center;padding:10px;border-radius:5px;background-color:var(--dark1); }
+.gets-menu a:hover,
+.gets-menu::before {display:block;font:800 10px / 10px var(--inter);letter-spacing:2px;text-decoration:none;color:var(--bg2);background:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:center;padding:10px 9px 10px 11px;border-radius:5px;background:linear-gradient(to right,var(--accent1),var(--accent2));color:var(--dark2);background-attachment:fixed;background-position:center; }
+.gets-menu a.active {background:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:center;padding:10px 9px 10px 11px;border-radius:5px;background:linear-gradient(to right,var(--accent1),var(--accent2));color:var(--dark2);background-attachment:fixed;background-position:center; }
+/* .gets-body-2 { display:grid;grid-template-columns:50px auto 42%;flex-grow:2;font:13px / 22px var(--inter);color:var(--dark2); } */
+/* .gets-body-left { border:solid 1px var(--border);border-left:none;border-radius:0px 9px 9px 9px;margin:-1px 0px; } */
+.gets-body-mid { border:solid 1px var(--border);border-left:none;border-radius:0px 9px 9px 0px;margin:-1px 0px;background-color:var(--bg1);position:relative;z-index:1; }
+.gets-body-right { height:calc(100vh - 283px);display:flex;flex-direction:column;position:relative;z-index:0;background-color:var(--bg1);border-radius:0px 0px 9px 0px; }
+
+.gets-stats-title { position:absolute;z-index:1;top:0px;left:-10px;right:75px;height:55px;background:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:center;padding:40px 40px 40px 50px;border-radius:0px 0px 10px 0px;color:var(--bg1);font:900 30px / 25px var(--inter);letter-spacing:-1px;text-transform:uppercase;display:flex;flex-direction:column;justify-content:flex-end;text-align:right; }
+.gets-stats-tabs { position:absolute;z-index:2;top:20px;right:20px;display:flex;flex-direction:column;gap:5px; }
+.gets-stats-tabs i { display:block;background:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:center;height:35px;width:35px;border-radius:10px;font-size:17px;display:flex;align-items:center;justify-content:center;color:var(--accent2);box-shadow:inset 0px 35px 0px rgba(238,238,238,.65);cursor:pointer; }
+.gets-stats-tabs i:hover { box-shadow:inset 0px 35px 0px rgba(255,255,255,.15);color:#fff; }
+.gets-stats-tabs i svg { display:none; }
+.gets-stats { height:100%;display:grid;grid-template-rows:100% 100% 100%;overflow:hidden; }
+.gets-stats-1 { height:100%;padding-top:135px;padding:155px 20px 20px 20px;margin-top:-0px; }
+.gets-stats-on { display:grid;gap:7px;grid-template-columns:repeat(6, 1fr);padding:30px;background-color:var(--bg1);background:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:center;border-radius:10px;mix-blend-mode:multiply;position:relative; }
+.gets-stats-on::before { content:'';display:block;position:absolute;top:0px;bottom:0px;left:0px;right:0px;background:rgba(255,255,255,.7); }
+.gets-stats-on::after { display:block;content:'';height:100%;right:0px;position:absolute;background-image:var(--background);top:0px;left:0px;background-position:bottom right;border-radius:11px;opacity:1;filter:invert(96.9%);background-repeat:no-repeat; }
+.gets-stats-on a { display:block;padding:4px;background-color:#fff;border-radius:10px;position:relative;z-index:1; }
+.gets-stats-on img { width:100%;border-radius:6px;cursor:pointer;filter:contrast(75%) grayscale(100%);display:block; }
+.gets-stats-on a:hover img { filter:contrast(100%) grayscale(0%); }
+
+.gets-body-mid-2 { position:relative;overflow:auto;scrollbar-width:none;height:calc(100vh - 233px);margin-left:-21px;padding-left:20px;scroll-snap-type: y mandatory; }
+.gets-cat { border-bottom:solid 1px var(--border);padding:30px 30px 30px 50px;display:grid;grid-template-columns:1fr 1fr;gap:20px;scroll-snap-align:start;scroll-snap-stop: always; }
+.gets-cat:last-of-type { border-bottom:none; }
+.gets-cat-name { position:sticky;top:30px;margin-left:-29px;grid-column-start:1;grid-column-end:2;grid-row-start:1;grid-row-end:2; }
+.gets-cat-name div { border:solid 1px var(--dark1);background-color:var(--dark1);font:700 12px / 11px var(--inter);text-transform:uppercase;letter-spacing:2px;padding:14px 19px;border-radius:30px;max-width:fit-content;transform:rotate(90deg);transform-origin:top left;color:var(--bg3); }
+
+.gets-board { padding:5px 0px 0px 0px;background-image:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:bottom center;border-radius:10px;mix-blend-mode:multiply;position:relative; }
+.gets-board-1 { mix-blend-mode:lighten; }
+.gets-board-top { background-color:rgba(255,255,255,.7);border-radius:7px 7px 0px 0px;height:70px;position:relative;overflow:hidden;border-left:solid 1px var(--bg2);border-right:solid 1px var(--bg2); }
+.gets-board-top::before { display:block;content:'';height:100%;right:0px;position:absolute;background-image:var(--background);top:0px;left:0px;background-position:center right;border-radius:11px;opacity:1;filter:invert(96.9%);background-repeat:no-repeat; }
+.gets-board-2 { border:solid 1px var(--bg2);border-top:none;padding:25px 50px 170px 50px;border-radius:7px 7px 10px 10px;background-color:#f9f9f9;margin-top:-7px;position:relative;z-index:2; }
+.gets-board-name { display:block;color:#aaa;font:800 40px / 30px var(--inter);letter-spacing:-2.5px;cursor:pointer;position:relative;z-index:1;position:absolute;top:-20px;text-shadow: #f9f9f9 0px 0px 3px, #f9f9f9 0px 0px 3px, #f9f9f9 0px 0px 3px, #f9f9f9 0px 0px 3px, #f9f9f9 0px 0px 3px, #f9f9f9 0px 0px 3px; }
+.gets-board-num { text-transform:uppercase;color:#aaa;line-height:14px;letter-spacing:1px; }
+.gets-board-img { position:absolute;z-index:2;height:50px;top:55px;right:50px;filter:contrast(75%) grayscale(100%);border-radius:5px; }
+.gets-board-desc { position:absolute;bottom:50px;left:50px;right:240px;z-index:2; }
+.gets-board-desc div { height:88px;overflow:auto;text-align:justify;padding-right:15px;scrollbar-color:var(--bg2) transparent;scrollbar-width:thin; }
+.gets-board-recent { display:flex;flex-direction:column;align-items:flex-end;color:#aaa;text-align:right;width:165px;position:absolute;right:50px;bottom:50px; }
+.gets-board-recent div { font:11px / 12px var(--inter);text-transform:uppercase;letter-spacing:.5px; }
+.gets-board-recent div a { font-weight:800!important;cursor:pointer; }
+.gets-board-recent-2 { display:block;border-radius:5px;margin-top:10px;background-image:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:bottom center;color:#fff;box-decoration-break: clone;-webkit-box-decoration-break: clone;padding:10px 13px 12px 12px;font:800 14px / 12px var(--inter);cursor:pointer; }
+
+
+a {
+  color: inherit; /* Унаследовать цвет от родителя */
+  text-decoration: none; /* Убрать подчеркивание */
+}
+
+
+
+
+
+.gets-redirect { grid-column-start:1;grid-column-end:3;grid-row-start:1;grid-row-end:2;mix-blend-mode:multiply;background-image:linear-gradient(to right,var(--accent1),var(--accent2));background-attachment:fixed;background-position:bottom center;border-radius:10px;padding:5px 0px 0px 0px; }
+.gets-redirect-2 { mix-blend-mode:lighten;margin:0px;background-color:rgba(255,255,255,.7);color:#fff;padding:35px;text-shadow: #aaa 1px 0px 0px, #aaa 0.540302px 0.841471px 0px, #aaa -0.416147px 0.909297px 0px, #aaa -0.989993px 0.14112px 0px, #aaa -0.653644px -0.756803px 0px, #aaa 0.283662px -0.958924px 0px, #aaa 0.96017px -0.279416px 0px;font:900 50px / 40px var(--inter);letter-spacing:-4px;position:relative;overflow:hidden;border:solid 1px var(--bg2);border-top:none;border-radius:7px 7px 10px 10px; }
+.gets-redirect-name {letter-spacing: 0px; display:block;cursor:pointer;position:relative;z-index:2;max-width:fit-content; }
+.gets-redirect-2 b { position:relative;z-index:1;display:block;background-image:
+    linear-gradient(to right,var(--accent1),var(--accent2));
+  background-size:100%;
+  background-attachment:fixed;
+  background-position:bottom center;font:800 10px / 10px var(--inter);text-transform:uppercase;letter-spacing:3px;text-shadow:none;padding:10px 8px 10px 10px;border-radius:5px;margin:5px 0px 0px 15px;max-width:fit-content; }
+.gets-redirect-2::before { display:block;content:'';height:100%;right:0px;position:absolute;background-image:var(--background);top:0px;left:215px;background-position:left bottom;border-radius:11px;opacity:1;filter:invert(96.9%);background-repeat:no-repeat; }
+
+@media (max-width: 1000px) { 
+  .gets-body { height:auto;margin-bottom:30px; }
+  .gets-body-2 { grid-template-columns:55px auto; }
+  .gets-body-left { border-radius:0px 10px 10px 0px;}
+  .gets-body-mid { border-right:none; }
+  .gets-body-right { grid-column: 1 / 3;border-radius:0px 0px 9px 9px; display:none; }
+  .gets-body-right::before { position:absolute;content:'';display:block;height:1px;width:30px;background:var(--border);top:0px;left:30px; }
+  
+  .gets-board { grid-column: 1 / 3; }
+  
+  .gets-stats-title { left:0px;top:1px;height:54px;text-align:center;justify-content:center; }
+}
+
+
+.gets-top-links div {
+  position: absolute;
+  right: 5px;
+  bottom: -17px;
+  display: none;
+  font: 800 10px / 10px var(--inter);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 10px 9px 10px 10px;
+  background-color: var(--dark1);
+  color: var(--bg2);
+  border-radius: 5px;
+}
+
+.gets-top-links i:hover + div {
+  display: block;
+}
+.gets-top-links i {
+  display: block;
+  font-size: 23px;
+  cursor: pointer;
+  
+
+}
+  </style>
+</head>
+
+<body>
+    <div class="gets-top-img"></div>
+    <div class="gets-top">
+      <div class="gets-top-links">
+        <a href="{% url 'dashboard' %}" class="link-wrapper">
+          <i class="iconsax" icon-name="home-1"></i>
+          <div>Главная</div>
+        </a>
+        <!-- <i class="iconsax" icon-name="search-normal-2"></i>
+        <div>Поиск на форуме</div> -->
+        {% if user.is_authenticated and user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="link-wrapper">
+                <i class="iconsax" icon-name="setting-1"></i>
+                <div>Админка</div>
+            </a>
+        {% endif %}
+        <i class="iconsax" icon-name="user-2"></i>
+        <div>Ваш профиль</div>
+        <a href="{% url 'messages' %}" class="link-wrapper">
+          <i class="iconsax" icon-name="messages-3"></i>
+          <div>Сообщения</div>
+        </a>
+        <a href="{% url 'people' %}" class="link-wrapper">
+          <i class="iconsax" icon-name="group"></i>
+          <div>Участники</div> 
+        </a>
+        {% if user.is_authenticated %}
+    <a href="#" class="link-wrapper" onclick="logout()">
+        <i class="iconsax" icon-name="logout-1"></i>
+        <div>Выход</div>
+    </a>
+{% endif %}
+
+      </div>
+      
+      <div class="gets-top-user">
+        <div>С возвращением,<b> {{ user.username }} !</b></div>
+        <img class="profile-image" src="{{ request.user.profile_image.url }}">
+      </div>
+      <div class="gets-top-name">
+        <!-- <div>////</div> -->
+        Blockchain
+      </div>
+    </div>
+    <div class="gets-body">
+        <div class="gets-menu">
+          <a href="{% url 'dashboard' %}" class="{% if active_tab == 'dashboard' %}active{% endif %}">Дэшборд</a>
+          <a href="{% url 'messages' %}" class="{% if active_tab == 'messages' %}active{% endif %}">Сообщения</a>
+          <a href="{% url 'tasks' %}" class="{% if active_tab == 'tasks' %}active{% endif %}">Задачи</a>
+          <a href="{% url 'all_blocks' %}" class="{% if active_tab == 'blocks' %}active{% endif %}">Все блоки</a>
+        </div>
+      <div class="gets-body-2">
+        {% block content %}
+        {% endblock %}
+  </div>
+        
+      </div>
+    </div>
+    
+    
+    
+    
+    
+    
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+    <link href="https://iconsax.gitlab.io/i/icons.css" rel="stylesheet">
+    <script src="//glenthemes.github.io/iconsax/geticons.js"></script>
+    <link href="//glenthemes.github.io/iconsax/style.css" rel="stylesheet">
+    <script src="//d3js.org/d3.v3.min.js"></script>
+  
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+      function logout() {
+      $.ajax({
+        url: "{% url 'logout' %}", // Укажите правильный URL для выхода
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function () {
+          window.location.href = "{% url 'login' %}"; // Перенаправить на страницу входа
+        },
+        error: function () {
+          alert("Не удалось выйти. Пожалуйста, попробуйте снова.");
+        }
+      });
+    }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% extends "home.html" %}
+{% block content %}
+<div class="wallet-info">
+    <h2>Transactions for Wallet: {{ wallet_hash }}</h2>
+
+    {% if transactions %}
+        <ul>
+            {% for transaction in transactions %}
+                <li>
+                    <p><strong>ID:</strong> {{ transaction.id }}</p>
+                    <p><strong>From:</strong> {{ transaction.from_hach }}</p>
+                    <p><strong>To:</strong> {{ transaction.to_hach }}</p>
+                    <p><strong>Amount:</strong> {{ transaction.count_coins }}</p>
+                    <p><strong>Timestamp:</strong> {{ transaction.timestamp }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No transactions found for this wallet.</p>
+    {% endif %}
+</div>
+{% endblock %}
